@@ -1,0 +1,143 @@
+<!-- ============================================================= -->
+<!-- WordPress-ready. Paste this whole block into a "Custom HTML"  -->
+<!-- block in the WordPress editor. Inline styles keep it readable  -->
+<!-- across themes — no external CSS needed. Edit the byline +      -->
+<!-- "About" box at the bottom before publishing.                   -->
+<!-- ============================================================= -->
+<div class="ace-26ai-post" style="max-width:820px;margin:0 auto;line-height:1.7;font-size:18px;color:#1f2430;font-family:Georgia,'Times New Roman',serif;">
+
+  <h1 style="font-size:2.1em;line-height:1.25;font-family:Helvetica,Arial,sans-serif;">When AI Agents Argue: Letting Two Bots Debate a Decision Inside Oracle 26ai</h1>
+
+  <p style="font-style:italic;color:#5a6172;">A hands-on look at the new SQLcl MCP Server, AI Vector Search, and a fun way to make AI more trustworthy — all running on Oracle AI Database 26ai.</p>
+
+  <hr style="border:none;border-top:1px solid #e2e2e2;margin:24px 0;">
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">The idea in one sentence</h2>
+  <p>Instead of asking <em>one</em> AI for an answer, I asked <strong>two AIs to argue</strong> — one in favour, one against — both pulling their evidence live from the same Oracle 26ai database, with a third AI acting as the judge.</p>
+  <p>It sounds playful, but there's a serious point underneath. A single AI tends to give you one confident answer and quietly skip the awkward facts. Two AIs that <em>disagree on purpose</em> drag those awkward facts into the open. And because every fact comes straight from the database, the whole debate is grounded in real data — not made-up "hallucinations".</p>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">Why I'm excited about this on 26ai</h2>
+  <p>As an Oracle ACE, I spend a lot of time with the Oracle AI Database. Two features in particular make this kind of project genuinely easy now:</p>
+  <ul>
+    <li><strong>AI Vector Search</strong> — the database can store the "meaning" of text as a vector and find similar items with plain SQL. No separate vector database needed.</li>
+    <li><strong>The SQLcl MCP Server</strong> — a built-in way to let AI tools talk to your database safely, over a standard protocol, without handing them your password.</li>
+  </ul>
+  <p>Put those together and the database stops being a passive box you read from. It becomes a place where AI agents can safely <em>investigate</em>.</p>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">First, what is the SQLcl MCP Server?</h2>
+  <p>MCP stands for <strong>Model Context Protocol</strong> — think of it as a universal adapter that lets AI assistants (Claude, Cline, your own scripts) connect to tools. Oracle ships an MCP server right inside <strong>SQLcl 25.2 and later</strong>. You start it with a single command:</p>
+
+  <pre style="background:#10131a;color:#eaeaea;padding:16px;border-radius:8px;overflow:auto;font-size:15px;font-family:Consolas,Monaco,monospace;"><code>sql -mcp</code></pre>
+
+  <p>Once it's running, it offers your AI a small, safe menu of actions:</p>
+  <table style="border-collapse:collapse;width:100%;font-size:16px;font-family:Helvetica,Arial,sans-serif;">
+    <thead><tr style="background:#f3f0ea;">
+      <th style="border:1px solid #ddd;padding:10px;text-align:left;">Tool</th>
+      <th style="border:1px solid #ddd;padding:10px;text-align:left;">What it does</th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="border:1px solid #ddd;padding:10px;"><code>list-connections</code></td><td style="border:1px solid #ddd;padding:10px;">Show your saved database connections</td></tr>
+      <tr><td style="border:1px solid #ddd;padding:10px;"><code>connect</code> / <code>disconnect</code></td><td style="border:1px solid #ddd;padding:10px;">Open or close a connection</td></tr>
+      <tr><td style="border:1px solid #ddd;padding:10px;"><code>run-sql</code></td><td style="border:1px solid #ddd;padding:10px;">Run SQL or PL/SQL</td></tr>
+      <tr><td style="border:1px solid #ddd;padding:10px;"><code>run-sqlcl</code></td><td style="border:1px solid #ddd;padding:10px;">Run SQLcl commands</td></tr>
+      <tr><td style="border:1px solid #ddd;padding:10px;"><code>schema-information</code></td><td style="border:1px solid #ddd;padding:10px;">Describe the connected schema</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:12px;">The key thing: the AI never sees your password. It just asks the MCP server to run things on a connection you've already saved. Every query it runs shows up in the database audit trail like any other session.</p>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">The cast: three AI agents</h2>
+  <p>I gave each agent a personality and pointed all three at the same 26ai database:</p>
+  <ul>
+    <li>🟢 <strong>Agent Alpha — the optimist.</strong> Its job is to argue <em>for</em> approving a customer's loan. It hunts for healthy cash flow and growth.</li>
+    <li>🔴 <strong>Agent Beta — the sceptic.</strong> Its job is to argue <em>against</em>. It looks for red flags and uses vector search to check if the customer resembles known fraud cases.</li>
+    <li>⚖️ <strong>The Judge.</strong> It reads both arguments and the evidence behind them, then makes the final call.</li>
+  </ul>
+
+  <pre style="background:#10131a;color:#eaeaea;padding:16px;border-radius:8px;overflow:auto;font-size:14px;font-family:Consolas,Monaco,monospace;"><code>  Agent Alpha (for)        Agent Beta (against)
+        \                        /
+         \                      /
+        SQLcl MCP Server  ->  Oracle 26ai
+         (run-sql, vector search)
+                   |
+                   v
+              The Judge  ->  final decision</code></pre>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">The clever bit: vector search for "gut feeling"</h2>
+  <p>Numbers alone don't catch everything. Sometimes a customer just <em>feels</em> like a previous bad actor. That "feeling" is exactly what AI Vector Search captures.</p>
+  <p>I stored a short written risk profile for each customer, plus historical fraud cases, as vectors in a single table:</p>
+
+  <pre style="background:#10131a;color:#eaeaea;padding:16px;border-radius:8px;overflow:auto;font-size:14px;font-family:Consolas,Monaco,monospace;"><code>CREATE TABLE risk_profiles (
+  customer_id   NUMBER,
+  label         VARCHAR2(20),       -- GOOD | WATCH | FRAUD
+  risk_score    NUMBER,
+  profile_text  VARCHAR2(4000),
+  embedding     VECTOR(1536, FLOAT32)
+);</code></pre>
+
+  <p>Then finding the most similar past cases is just SQL — no special add-ons:</p>
+
+  <pre style="background:#10131a;color:#eaeaea;padding:16px;border-radius:8px;overflow:auto;font-size:14px;font-family:Consolas,Monaco,monospace;"><code>SELECT customer_id, label, risk_score,
+       ROUND(VECTOR_DISTANCE(embedding, :query, COSINE), 4) AS distance,
+       profile_text
+FROM   risk_profiles
+ORDER  BY VECTOR_DISTANCE(embedding, :query, COSINE)
+FETCH  APPROX FIRST 5 ROWS ONLY;</code></pre>
+
+  <p>The smaller the <code>distance</code>, the more alike two profiles are. So when Agent Beta runs this against a customer, it instantly sees whether that customer looks like a known fraudster.</p>
+
+  <!-- SCREENSHOT 2: ready-made image is blog/fraud-table.png — upload it to your
+       WordPress Media Library, then this src will resolve (or paste the Media URL here). -->
+  <figure style="margin:24px 0;text-align:center;">
+    <img src="fraud-table.png"
+         alt="SQL result grid from the vector search query, showing two FRAUD-labelled risk profiles as the nearest matches with small cosine distance values"
+         style="max-width:100%;height:auto;border:1px solid #ddd;border-radius:8px;" />
+    <figcaption style="font-size:14px;color:#7a808c;font-style:italic;margin-top:8px;font-family:Helvetica,Arial,sans-serif;">AI Vector Search in action — the customer's nearest matches include known FRAUD profiles, with the distance showing just how close.</figcaption>
+  </figure>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">What happened when I ran it</h2>
+  <p>I gave the agents a deliberately tricky applicant — a freight company with <strong>genuine 6%-a-month revenue growth</strong> but also a few suspicious, large, round-number wire transfers. Here's how the debate played out:</p>
+
+  <div style="background:#eafaf0;border-left:5px solid #2e9e5b;padding:12px 16px;border-radius:6px;margin:10px 0;">
+    <strong>🟢 Alpha argued FOR:</strong> "Revenue is growing steadily, monthly inflows are strong, and they look like other healthy borrowers. Approve the full amount."
+  </div>
+  <div style="background:#fdeeec;border-left:5px solid #d23b27;padding:12px 16px;border-radius:6px;margin:10px 0;">
+    <strong>🔴 Beta argued AGAINST:</strong> "Those round-number wires are a classic red flag — and the vector search shows this customer sits very close to a known fraud profile. Decline, or lend far less."
+  </div>
+  <div style="background:#eef3fb;border-left:5px solid #2b6cb0;padding:12px 16px;border-radius:6px;margin:10px 0;">
+    <strong>⚖️ The Judge decided:</strong> "Approve — but with conditions. Reduce the credit to <strong>$1.5M</strong> (not the $2M requested) and monitor the outbound transfers."
+  </div>
+
+  <p style="margin-top:14px;">That verdict is exactly the kind of balanced, defensible decision you want — and crucially, every point in it traces back to real rows in the database.</p>
+
+  <!-- SCREENSHOT 1: ready-made image is blog/debate-screenshot.png — upload it to your
+       WordPress Media Library, then this src will resolve (or paste the Media URL here). -->
+  <figure style="margin:24px 0;text-align:center;">
+    <img src="debate-screenshot.png"
+         alt="Dashboard showing Agent Alpha (for) and Agent Beta (against) arguments side by side, with the Judge's APPROVE WITH CONDITIONS — $1.5M verdict at the top"
+         style="max-width:100%;height:auto;border:1px solid #ddd;border-radius:8px;" />
+    <figcaption style="font-size:14px;color:#7a808c;font-style:italic;margin-top:8px;font-family:Helvetica,Arial,sans-serif;">The debate, end to end: Alpha argues for, Beta argues against, and the Judge delivers the verdict — all from data in Oracle 26ai.</figcaption>
+  </figure>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">A few honest tips from building it</h2>
+  <p>If you try this yourself, here are the little things that tripped me up — so they won't trip you:</p>
+  <ul>
+    <li><strong>The right SQL.</strong> Oracle's function is <code>VECTOR_DISTANCE(column, query, COSINE)</code> with <code>FETCH APPROX FIRST n ROWS ONLY</code>. (Ignore any online examples using <code>@@</code> — that's PostgreSQL, not Oracle.)</li>
+    <li><strong>The MCP server is SQLcl's.</strong> You start it with <code>sql -mcp</code> and a saved connection — there's no magic in-database "enable MCP" procedure to call.</li>
+    <li><strong>Watch the ampersand.</strong> SQLcl treats <code>&amp;</code> as a substitution variable, so text like "Freight &amp; Logistics" needs care when scripting inserts.</li>
+    <li><strong>Wrap it in security.</strong> Because the agents only ever run read-only queries through MCP, and everything is audited, you keep full control. Add Oracle's SQL Firewall if you want to lock the allowed statements down even further.</li>
+  </ul>
+
+  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">The takeaway</h2>
+  <p>We usually think of AI and the database as two separate worlds — the AI does the "thinking", the database just stores the data. Oracle 26ai blurs that line. With AI Vector Search and the SQLcl MCP Server, the database becomes a place where AI agents can safely reason over your real, operational data.</p>
+  <p>And making those agents <em>argue</em>? That turned out to be a surprisingly effective way to get a decision I could actually trust.</p>
+
+  <hr style="border:none;border-top:1px solid #e2e2e2;margin:28px 0;">
+
+  <div style="background:#f7f6f3;border-radius:8px;padding:16px 20px;font-size:16px;font-family:Helvetica,Arial,sans-serif;">
+    <strong>About the author</strong><br>
+    <em>[Your Name]</em> is an <strong>Oracle ACE</strong> focused on the Oracle AI Database (26ai), AI Vector Search, and the SQLcl MCP Server. Connect on [LinkedIn / X] and follow along for more hands-on Oracle AI experiments.
+  </div>
+
+  <p style="font-size:14px;color:#7a808c;margin-top:16px;">⚠️ This is a learning demo, not financial advice — don't make real lending decisions from a sample database.</p>
+
+</div>
