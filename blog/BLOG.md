@@ -4,6 +4,14 @@
 
 ---
 
+**📋 At a glance**
+
+- **Tech stack:** Oracle 26ai AI Vector Search · SQLcl MCP Server · OpenAI gpt-4o · Python
+- **Database:** Oracle AI Database 26ai — 23.26.2.2.0 (Autonomous Database)
+- **Best for:** Multi-agent decisioning over your own data — AI agents debate a call (e.g. a credit approval) grounded in vector + relational context.
+- **Level:** Intermediate
+
+
 ## The idea in one sentence
 
 Instead of asking *one* AI for an answer, I asked **two AIs to argue** — one in favour, one against — both pulling their evidence live from the same Oracle 26ai database, with a third AI acting as the judge.
