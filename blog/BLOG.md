@@ -6,6 +6,7 @@
 
 **📋 At a glance**
 
+- **📦 Repository:** [github.com/khadayatepa/oracle-26ai-agent-debate](https://github.com/khadayatepa/oracle-26ai-agent-debate)
 - **Tech stack:** Oracle 26ai AI Vector Search · SQLcl MCP Server · OpenAI gpt-4o · Python
 - **Database:** Oracle AI Database 26ai — 23.26.2.2.0 (Autonomous Database)
 - **Prerequisites:** SQLcl 25.2+ (MCP server), Python 3.10+, an OpenAI API key
