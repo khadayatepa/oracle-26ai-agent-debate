@@ -165,6 +165,10 @@ FETCH  APPROX FIRST 5 ROWS ONLY;
 The three agents (Python + OpenAI) then argue using these rows.
 
 
-*About the author: **[Your Name]** is an **Oracle ACE** focused on the Oracle AI Database (26ai), AI Vector Search, and the SQLcl MCP Server.*
+📦 **Full code on GitHub:** [github.com/khadayatepa/oracle-26ai-agent-debate](https://github.com/khadayatepa/oracle-26ai-agent-debate)
+
+---
+
+*About the author: **Prashant Khadayate** is an **Oracle ACE** focused on the Oracle AI Database (26ai), AI Vector Search, and the SQLcl MCP Server. Connect on [LinkedIn](https://www.linkedin.com/in/prashant-khadayate-1a8b0b97/) for more hands-on Oracle AI experiments.*
 
 > ⚠️ This is a learning demo, not financial advice — don't make real lending decisions from a sample database.
