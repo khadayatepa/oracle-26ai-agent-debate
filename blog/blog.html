@@ -33,7 +33,27 @@
   </ul>
   <p>Put those together and the database stops being a passive box you read from. It becomes a place where AI agents can safely <em>investigate</em>.</p>
 
-  <h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">First, what is the SQLcl MCP Server?</h2>
+    <h2 style="color:#b1361e;margin-top:32px;">🛠️ Do it yourself — step by step (manual SQL)</h2>
+  <p>The three‑agent debate runs in Python (OpenAI), but the database side — storing customer profiles and finding the most relevant ones by meaning — is pure SQL you can run by hand in SQLcl / SQL*Plus.</p>
+  <p><strong>1) Create a table with a VECTOR column</strong></p>
+  <pre style="background:#0f172a;color:#e2e8f0;padding:13px;border-radius:9px;overflow:auto;font-size:12.5px;"><code>CREATE TABLE risk_profiles (
+  customer_id  NUMBER, label VARCHAR2(20),    -- GOOD | WATCH | FRAUD
+  risk_score   NUMBER, profile_text VARCHAR2(4000),
+  embedding    VECTOR(1536, FLOAT32));</code></pre>
+  <p><strong>2) Load profiles + their embeddings</strong></p>
+  <pre style="background:#0f172a;color:#e2e8f0;padding:13px;border-radius:9px;overflow:auto;font-size:12.5px;"><code>-- Each profile_text is embedded once (OpenAI text-embedding-3-small, 1536-dim) and
+-- stored in the embedding column by the seed script.</code></pre>
+  <p style="font-size:15px;color:#475569;">The embeddings are 1536‑dim because that's what <code>text-embedding-3-small</code> produces.</p>
+  <p><strong>3) Find the 5 most similar profiles to a query vector (the evidence the agents debate)</strong></p>
+  <pre style="background:#0f172a;color:#e2e8f0;padding:13px;border-radius:9px;overflow:auto;font-size:12.5px;"><code>SELECT customer_id, label, risk_score,
+       ROUND(VECTOR_DISTANCE(embedding, :query, COSINE), 4) AS distance,
+       profile_text
+FROM   risk_profiles
+ORDER  BY VECTOR_DISTANCE(embedding, :query, COSINE)
+FETCH  APPROX FIRST 5 ROWS ONLY;</code></pre>
+  <p style="font-size:15px;color:#475569;">The three agents (Python + OpenAI) then argue using these rows.</p>
+
+<h2 style="font-family:Helvetica,Arial,sans-serif;color:#b1361e;">First, what is the SQLcl MCP Server?</h2>
   <p>MCP stands for <strong>Model Context Protocol</strong> — think of it as a universal adapter that lets AI assistants (Claude, Cline, your own scripts) connect to tools. Oracle ships an MCP server right inside <strong>SQLcl 25.2 and later</strong>. You start it with a single command:</p>
 
   <pre style="background:#10131a;color:#eaeaea;padding:16px;border-radius:8px;overflow:auto;font-size:15px;font-family:Consolas,Monaco,monospace;"><code>sql -mcp</code></pre>

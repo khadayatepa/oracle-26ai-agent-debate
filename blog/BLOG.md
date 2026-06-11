@@ -131,6 +131,40 @@ And making those agents *argue*? That turned out to be a surprisingly effective 
 
 ---
 
+## 🛠️ Do it yourself — step by step (manual SQL)
+
+The three‑agent debate runs in Python (OpenAI), but the database side — storing customer profiles and finding the most relevant ones by meaning — is pure SQL you can run by hand in SQLcl / SQL*Plus.
+
+**1) Create a table with a VECTOR column**
+
+```sql
+CREATE TABLE risk_profiles (
+  customer_id  NUMBER, label VARCHAR2(20),    -- GOOD | WATCH | FRAUD
+  risk_score   NUMBER, profile_text VARCHAR2(4000),
+  embedding    VECTOR(1536, FLOAT32));
+```
+
+**2) Load profiles + their embeddings**
+
+```text
+-- Each profile_text is embedded once (OpenAI text-embedding-3-small, 1536-dim) and
+-- stored in the embedding column by the seed script.
+```
+The embeddings are 1536‑dim because that's what text-embedding-3-small produces.
+
+**3) Find the 5 most similar profiles to a query vector (the evidence the agents debate)**
+
+```sql
+SELECT customer_id, label, risk_score,
+       ROUND(VECTOR_DISTANCE(embedding, :query, COSINE), 4) AS distance,
+       profile_text
+FROM   risk_profiles
+ORDER  BY VECTOR_DISTANCE(embedding, :query, COSINE)
+FETCH  APPROX FIRST 5 ROWS ONLY;
+```
+The three agents (Python + OpenAI) then argue using these rows.
+
+
 *About the author: **[Your Name]** is an **Oracle ACE** focused on the Oracle AI Database (26ai), AI Vector Search, and the SQLcl MCP Server.*
 
 > ⚠️ This is a learning demo, not financial advice — don't make real lending decisions from a sample database.
