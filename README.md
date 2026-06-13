@@ -12,14 +12,6 @@ the database **only** through Oracle's SQLcl MCP server:
 Alpha argues *for* the loan, Beta hunts red flags (including **vector similarity to
 known fraud profiles**), Alpha rebuts, and the Judge renders a binding verdict.
 
-## What's real here (vs. the original blog draft)
-
-| Claim in the draft | Reality used in this repo |
-| --- | --- |
-| `DBMS_CLOUD_AI.ENABLE_MCP_SERVER` / `REGISTER_MCP_TOOL` | ❌ not real. The MCP server is **SQLcl** (`sql -mcp`, SQLcl 25.2+). Tools: `list-connections`, `connect`, `disconnect`, `run-sql`, `run-sqlcl`, `schema-information`. |
-| `WHERE VECTOR_CHUNKS @@ :1 ORDER BY VECTOR_DISTANCE(:1)` | ❌ invalid. Real: `ORDER BY VECTOR_DISTANCE(embedding, :v, COSINE) FETCH APPROX FIRST k ROWS ONLY`. |
-| `from mcp import McpClient, HttpTransport` | ❌ not in the SDK. Real: `ClientSession` + `stdio_client` (see `src/mcp_oracle.py`). |
-| Agents "execute tools via MCP" but pass no `tools=` | Fixed: real OpenAI function-calling loop wired to MCP (`src/debate.py`). |
 
 ## Prerequisites
 
